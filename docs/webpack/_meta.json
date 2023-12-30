@@ -1,0 +1,12 @@
+[
+  {
+    "typ": "file",
+    "name": "index",
+    "label": "webpack 概览"
+  },
+  {
+    "type": "dir",
+    "name": "plugin",
+    "label": "插件"
+  }
+]
