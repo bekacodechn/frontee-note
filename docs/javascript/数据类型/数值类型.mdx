@@ -1,0 +1,118 @@
+# number
+
+## 极限值
+
+```js
+// js 可以表示的最大值
+Number.MAX_VALUE
+
+// js 可以表示的最小值
+Number.MIN_VALUE
+
+
+// 正无限
+Number.POSITIVE_INFINITY // Infinity
+
+// 负无限
+Number.NEGATIVE_INFINITY // -Infinity
+```
+
+## NaN
+
+**`isNaN()`** 函数用来确定一个值是否为 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)，若有必要，
+则首先将值转换为数字。由于 `isNaN()` 函数内部的强制类型转换可能[令人迷惑](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/isNaN#%E6%8F%8F%E8%BF%B0)，因此你可能更想要使用 [`Number.isNaN()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN)。
+
+`Number.isNaN()` 不会尝试将参数转换为数字，因此非数字总是返回 false。
+
+一些特殊情况：
+
+```js
+console.log(0/0);     // NaN
+console.log(-0/0);   // NaN
+
+console.log(5/0);    // Infinity
+console.log(5/-0);   // -Infinit
+
+```
+
+## 数值转换
+
+有3个函数可以将非数值转换为数值： `Number()`、`parseInt()`和`parseFloat()`。
+
+`Number()是转型函数`，可用于任何数据类型。后两个函数`主要用于将字符串转换为数值`。对于同样的参数，这3个函数执行的操作也不同。
+
+### Number() 类型转换
+
+1. 布尔值, `true -> 1`, `false -> 0`
+2. 数值，直接返回
+3. `null -> 0`
+4. `undefined -> NaN`
+5. 字符串:
+    - `"11" -> 11`
+    - `"1.1" => 1.1`
+    - 有效的其他进制，将转为十进值。`"0b10" -> 2`，但`"00b10" -> NaN`
+    - `空字符串 -> 0`
+    - `其他情况 -> NaN`
+6. 对象：可以解析对象，将转换`valueOf`或`toString`的返回值。
+
+:::tip 关于调用valueOf、toString
+
+1. 如果对`num`进行数值计算，调用`valueOf`，否则调用`toString`
+2. 自增、自减不会调用以上方法，直接报错。
+
+```js
+const num = {
+  valueOf() {
+    return 10
+  },
+  toString() {
+    return 20
+  }
+}
+
+console.log('num', parseInt(num)) // 20
+console.log('num2', parseInt(num + 1)) // 11
+console.log('num3', parseInt(num++)) // 报错
+```
+:::
+
+
+
+### parseInt() 字符串转数字
+
+1. 忽略字符串前面的空格，从非空格开始转换
+2. 第一个字符不是数字、`+`、`-`则返回`NaN`。
+```js
+parseInt("  10") // 10
+parseInt("  b10") // NaN
+parseInt("") // Na
+```
+3. 数值之后的所有非数值将被忽略
+```js
+parseInt("10a") // 10
+parseInt("10.123") // 10
+parseInt("10a123") // 10
+```
+4. 可正确解析其他进制。
+```js
+parseInt("0xA"); // 10
+```
+5. 如果明确提供了进制，可省略`0x`
+```js
+parseInt("A", 16); // 10
+
+parseInt("10", 2);    // 2，按二进制解析
+parseInt("10", 8);    // 8，按八进制解析
+parseInt("10", 10);   // 10，按十进制解析
+parseInt("10", 16);   // 16，按十六进制解析
+```
+
+因为不传底数参数相当于让parseInt()自己决定如何解析，所以为避免解析出错，建议始终传给它第二个参数。
+
+### parseFloat() 字符串转数字
+
+1. 和`parseInt`类似，但第一个`.`有效。
+2. 只能解析10进制数，不支持第二个参数
+3. 首位和末位的空格将被忽略。
+4. 可以解析`"Infinity"`，但`parseInt`不行
+5. 可以解析对象，将转换`valueOf`或`toString`的返回值。

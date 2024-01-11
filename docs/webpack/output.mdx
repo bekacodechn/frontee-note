@@ -1,0 +1,26 @@
+# output
+
+## 基本用法
+
+```js
+module.exports = {
+  entry: {
+    app: './src/app.js',
+    search: './src/search.js',
+  },
+  output: {
+    filename: '[name].js',
+    path: __dirname + '/dist',
+  },
+};
+```
+
+## output.publicPath
+
+如果输出文件的 `publicPath` 在编译时未知，则可以将其留空，并在运行时通过入口点文件中的 `__webpack_public_path__` 变量动态设置：
+
+:::info
+`html-webpack-plugin`不支持动态设置，只能在`output.publicPath`中设置。
+:::
+
+

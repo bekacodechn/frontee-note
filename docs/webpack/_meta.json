@@ -1,12 +1,37 @@
 [
   {
-    "typ": "file",
+    "type": "file",
     "name": "index",
     "label": "webpack 概览"
   },
   {
-    "type": "dir",
+    "type": "file",
+    "name": "整体结构",
+    "label": "整体结构"
+  },
+  {
+    "type": "file",
+    "name": "entry",
+    "label": "entry"
+  },
+  {
+    "type": "file",
+    "name": "output",
+    "label": "output"
+  },
+  {
+    "type": "file",
+    "name": "loader",
+    "label": "loader"
+  },
+  {
+    "type": "file",
     "name": "plugin",
-    "label": "插件"
+    "label": "plugin"
+  },
+  {
+    "type": "file",
+    "name": "loader-list",
+    "label": "loader列表"
   }
 ]

@@ -1,0 +1,85 @@
+[
+  {
+    "type": "file",
+    "name": "index",
+    "label": "javascript 概览"
+  },
+  {
+    "type": "dir",
+    "name": "基本概念",
+    "label": "基本概念",
+    "collapsed": true
+  },
+  {
+    "type": "dir",
+    "name": "语言基础",
+    "label": "语言基础",
+    "collapsed": true
+  },
+  {
+    "type": "dir",
+    "name": "数据类型",
+    "label": "数据类型",
+    "collapsed": true
+  },
+  {
+    "type": "file",
+    "name": "代码片断",
+    "label": "代码片断"
+  },
+  {
+    "type": "file",
+    "name": "<script>",
+    "label": "<script>"
+  },
+  {
+    "type": "file",
+    "name": "严格模式",
+    "label": "严格模式"
+  },
+  {
+    "type": "file",
+    "name": "垃圾回收及内存泄漏",
+    "label": "垃圾回收及内存泄漏"
+  },
+  {
+    "type": "file",
+    "name": "日期",
+    "label": "日期"
+  },
+  {
+    "type": "file",
+    "name": "正则",
+    "label": "正则"
+  },
+  {
+    "type": "file",
+    "name": "定型数组",
+    "label": "定型数组"
+  },
+  {
+    "type": "file",
+    "name": "Map",
+    "label": "Map"
+  },
+  {
+    "type": "file",
+    "name": "WeapMap",
+    "label": "WeapMap"
+  },
+  {
+    "type": "file",
+    "name": "Set和WeakSet",
+    "label": "Set和WeakSet"
+  },
+  {
+    "type": "file",
+    "name": "迭代器",
+    "label": "迭代器"
+  },
+  {
+    "type": "file",
+    "name": "小知识",
+    "label": "小知识"
+  }
+]

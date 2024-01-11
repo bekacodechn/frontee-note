@@ -1,0 +1,233 @@
+# object
+
+## Object实例方法
+
+- `hasOwnProperty(propertyName)`: 自身是否有该属性。
+- `isPrototypeOf(object)`: 用于判断当前对象是否为另一个对象的原型。
+- `propertyIsEnumerable(propertyName)`: 用于判断给定的属性是否可以使用for-in语句枚举。与hasOwnProperty()一样，属性名必须是字符串。
+- `toLocaleString()`: 返回本地化的对象字符串。
+
+## Object静态方法
+
+- `getOwnPropertyDescriptor(obj, prop)`： 返回指定属性的描述符
+- `getOwnPropertyDescriptor(obj)`：返回对象的所有描述符
+- 获取属性的静态方法：[`获取属性`](./Symbol.html#获取属性)
+
+## 描述符的类型（数据描述符、访问器描述符）
+
+[`Object.defineProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
+
+为了将某个特性标识为内部特性，规范会用两个中括号把特性的名称括起来，比如`[[Enumerable]]`。
+
+描述符分两种：数据描述符和访问器描述符。
+
+### 数据描述符
+
+1. `[[configurable]]`为`false`时:
+    - 该属性的类型不能在数据属性和访问器属性之间更改，且
+    - 该属性不可被删除，且
+    - 其描述符的其他属性也不能被更改（但是，如果它是一个可写的数据描述符，则 `value` 可以被更改，`writable` 可以更改为 `false`）。
+
+如果使用`Object.defineProperty()`设置了`configurable=false`但没有设置`writable=true`，则无法修改`value`值。
+
+```js {6}
+"use strict"
+let person = {};
+Object.defineProperty(person, "name", {
+  configurable: false,
+  value: "张三",
+  // writable: true
+});
+person.name = '李四'; // 没有设置writable为true，重新赋值时在严格模式下报错
+```
+
+如果`configurable`被设置为`false`，则无法修改其他描述符。（但`writable`可以从`true`改为`fasle`）
+
+```js {8}
+let person = {};
+Object.defineProperty(person, "name", {
+  configurable: false,
+  value: "Nicholas"
+});
+// 抛出错误
+Object.defineProperty(person, "name", {
+  configurable: true,
+  value: "Nicholas"
+});
+```
+
+2. `[[enumerable]]`
+
+    是否可通过`for...in`枚举，`false`时不能枚举
+
+3. `[[writable]]`
+
+    是否可修改属性值，`false`时不能修改
+
+4. `[[value]]`
+
+    属性值，默认为`undefined`
+
+**属性描述符默认值:**
+
+| 描述符 |  `Object.defineProperty()`默认值 | 对象定义时的默认值 |
+| :- | :- | :- |
+| `[[configurable]]` | false | true |
+| `[[enumerable]]` | false | true |
+| `[[writable]]` | false | true |
+| `[[value]]` | undefiend | undefiend |
+
+
+### 访问器描述符
+
+`[[get]]`和`[[set]]`替代`[[value]]`和`[[writable]]`
+
+只有`[[get]]`而没有定义`[[set]]`表示只读属性，严格模式下调用赋值操作会报错。
+
+## Object.is(x, y)
+
+```js title=Object.is 正确识别 -0 和 NaN
+console.log(0 === -0); // true
+console.log(NaN === NaN); // false
+
+console.log(Object.is(0, -0)); // false
+console.log(Object.is(NaN, NaN)); // true
+```
+
+## 解构时对已有变量赋值
+
+`personName`和`age`已经声明，从`person`解构时对这两个变量进行了赋值操作。
+
+```js {8}
+let personName = '张三'
+let age = 18
+let person = {
+  name: '李四',
+  age: 20
+};
+// 整个用括号包裹
+({name: personName, age: personAge} = person);
+
+console.log(personName, personAge); // 李四 20
+```
+
+## 实现 new 的过程
+
+1. 在内存中创建一个新对象。
+2. 这个新对象内部的`[[Prototype]]`特性被赋值为构造函数的prototype属性。
+3. 构造函数内部的this被赋值为这个新对象（即this指向新对象）。
+4. 执行构造函数内部的代码（给新对象添加属性）。
+5. 如果构造函数返回非空对象，则返回该对象；否则，返回刚创建的新对象。
+
+```js title=手动实现new
+function newFun(fn, ...args) {
+  // 1. 创建新对象
+  // 2. 新对象的[[prototype]]指向构造函数的prototype
+  const newObj = Object.create(fn.prototype);
+
+  // 3. 执行构造函数，this需指向新对象
+  // 4. 执行后给新对象添加属性、方法
+  const returnObj = fn.apply(newObj, args);
+
+  const isObject = typeof returnObj === "object" && returnObj !== null;
+  const isFunction = typeof returnObj === 'function'
+
+  // 5.如果构造函数返回对象或函数，则直接返回。否则返回新对象
+  if (isObject || isFunction) {
+    return returnObj
+  }
+
+  return newObj
+}
+```
+
+## 属性的枚举顺序
+
+1. 确定顺序的方法：
+
+- `Object.getOwnPropertyNames()`
+- `Object.getOwnPropertySymbols()`
+- `Object.assign()`
+
+  顺序:
+  1. 先以**升序**枚举**数值键**
+  2. 然后以**插入顺序枚举字符串和符号键**。
+  3. 在对象字面量中定义的键以它们**逗号分隔的顺序插入**。
+
+2. 不确定顺序的方法：
+
+- `for...in`
+- `Object.keys()`
+
+  取决于Javascript引擎。
+
+## 忽略Symbol属性
+
+`Object.keys()`、`Object.values()`、`Object.entries((o))`都会忽略`Symbol`属性。
+
+```js title=
+const sym = Symbol();
+const o = {
+  [sym]: 'foo'
+};
+console.log(Object.keys(o)); // []
+console.log(Object.values(o)); // []
+console.log(Object.entries((o))); // []
+```
+
+## 完善prototype指向普通对象
+
+```js {11-13}
+function Person() {}
+Person.prototype = {
+  name: "Nicholas",
+  age: 29,
+  job: "Software Engineer",
+  sayName() {
+    console.log(this.name);
+  }
+};
+// 恢复constructor属性
+Object.defineProperty(Person.prototype, "constructor", {
+  value: Person,
+  enumerable: false,
+});
+```
+
+其中：
+
+- 第11行修复: `person`对象的`constructor`正确指向`Person`构造函数。
+- 第12行修复： `constructor`在枚举中显示。
+
+## 先new后修改prototype是无效的
+
+```js {2}
+function Person() {}
+let friend = new Person();
+Person.prototype = {
+  constructor: Person,
+  name: "Nicholas",
+  age: 29,
+  job: "Software Engineer",
+  sayName() {
+    console.log(this.name);
+  }
+};
+friend.sayName();   // 错误
+```
+
+重写构造函数上的原型之后再创建的实例才会引用新的原型。而在此之前创建的实例仍然会引用最初的原型。
+
+因此改为：
+
+```js title=
+Person.prototype = {
+  constructor: Person,
+  ...
+};
+let friend = new Person();
+friend.sayName();   // 正确
+```
+
+
+

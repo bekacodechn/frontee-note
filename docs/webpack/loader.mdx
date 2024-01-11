@@ -1,0 +1,43 @@
+# loader
+
+## loader的两种使用方式
+
+1. 配置
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+            },
+          },
+          { loader: 'sass-loader' },
+        ],
+      },
+    ],
+  },
+};
+```
+
+2. 内联
+
+```js
+import Styles from 'style-loader!css-loader?modules!./styles.css';
+```
+
+还包括`!`、`!!`和`-!`用法。
+
+## Loader Features
+
+1. 可以是同步或异步。
+2. 可配置`options`对象。
+3. 除了正常的 `main` 之外，普通模块还可以通过带有 `loader` 字段的 `package.json` 导出 `loader`。
+4. 插件可以为加载器提供更多功能。
+5. 加载程序可以发出其他任意文件。

@@ -1,0 +1,135 @@
+# 正则 RegExp
+
+正则包括字符类、限定符、分组、向前查找和反向引用。每个正则表达式可以带零个或多个flags（标记），用于控制正则表达式的行为。
+
+## 用于哪里？
+
+1. `RexExp`的[`exec`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec)和
+[`test`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test)方法。
+2. `String`的[`match`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match)、
+[`matchAll`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll)、
+[`replace`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace)、
+[`search`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 和
+ [`split`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/split)
+
+## 特殊字符
+
+### 断言
+
+| 字符| 含义 |
+| :- | :- |
+| `\b` | 匹配一个单词的边界，不包括匹配`\b`的字符。除单字字符(`字母`、`数字`和`下划线`)，其他都能匹配`\b`  |
+| `\B` | `\b` 取反 |
+
+另外还有: `^`和`$`
+
+### 字符类
+
+如 `[a-z]`、`.` 等。[`字符类`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes)
+
+### 组和范围
+
+| 字符集| 含义 |
+| :- | :- |
+| `\n`| 捕获匹配的反向引用。 |
+| `(?<Name>x`)| 具名捕获组。可通过`group`属性获取。 |
+| `(?:x)` | 匹配 'x' 但是不记住匹配项。这种括号叫作非捕获括号，使得你能够定义与正则表达式运算符一起使用的子表达式。看看这个例子 /(?:foo){1,2}/。如果表达式是 /foo{1,2}/，{1,2} 将只应用于 'foo' 的最后一个字符 'o'。如果使用非捕获括号，则 {1,2} 会应用于整个 'foo' 单词。 |
+| `x(?=y)` | 匹配'x'仅仅当'x'后面跟着'y'.这种叫做`先行断言`。 例如，/Jack(?=Sprat)/会匹配到'Jack'仅当它后面跟着'Sprat'。/Jack(?=Sprat\|Frost)/匹配‘Jack’仅当它后面跟着'Sprat'或者是‘Frost’。但是‘Sprat’和‘Frost’都不是匹配结果的一部分。 |
+| `(?<=y)x` | 匹配'x'仅当'x'前面是'y'.这种叫做`后行断言`。 |
+| `x(?!y)` | 仅仅当'x'后面不跟着'y'时匹配'x'，这被称为`正向否定查找`。 例如，仅仅当这个数字后面没有跟小数点的时候，/\d+(?!\.)/ 匹配一个数字。正则表达式/\d+(?!\.)/.exec("3.141") 匹配‘141’而不是‘3.141’ |
+| `(?<!y)x` | 仅仅当'x'前面不是'y'时匹配'x'，这被称为`反向否定查找`。 |
+
+
+```js title=具名捕获组
+const reg = /(?<name>lisa)~/;
+
+const r = 'hi, lisa~~'.match(reg);
+console.log(r.groups.name); // lisa
+```
+
+
+
+## flags
+
+| 标记   | 模式  | 说明 |
+|  :-  | :-  | :- |
+| `y`  | 粘附模式 | `只查找从lastIndex开始及之后的字符串` |
+| `u`  | Unicode模式 | 启用Unicode匹配 |
+| `s`  | dotAll模式 | 元字符．匹配任何字符（包括\n或\r） |
+
+另外还有`g`、`m`、`i`。
+
+### g 和 y 区别
+
+他们都依赖`lastIndex`的变化，但`g`匹配`lastIndex`及之后的字符串，而`y`只能匹配从`lastIndex`开始的。
+
+## 需要转义的元字符
+
+```
+( [ { \ ^ $ | ) ] } ? ＊ + .
+```
+
+## Regexp Constructor
+
+```js title=
+// Regexp(pattern[, flags])
+new RegExp("^abc.", "gims")
+```
+
+### 转义构造函数的pattern
+
+RegExp的模式参数是字符串，所以在某些情况下需要二次转义。所有元字符都必须二次转义，包括转义字符序列，如\n（\转义后的字符串是\\，在正则表达式字符串中则要写成\\\\）
+
+![20240110170906](https://blog-1318409910.cos.ap-beijing.myqcloud.com/blog/20240110170906.png)
+
+### 修改Regexp
+
+使用`RegExp Constructor`也可以基于已有的正则表达式实例，并可选择性地修改它们的标记
+
+```js title=
+const re1 = /cat/g;
+console.log(re1);   // "/cat/g"
+const re2 = new RegExp(re1);
+console.log(re2);   // "/cat/g"
+const re3 = new RegExp(re1, "ig");
+console.log(re3);   // "/cat/gi"
+```
+
+## 实例属性
+
+| 属性名| 类型 | 描述 |
+| :- | :- | :- |
+| `global` | boolean | 是否设置了`g`标记 |
+| `ignoreCase` | boolean | 是否设置了`i`标记 |
+| `unicode` | boolean | 是否设置了`u`标记 |
+| `sticky` | boolean | 是否设置了`y`标记 |
+| `lastIndex` | number | 表示在源字符串中下一次搜索的开始位置，始终从0开始 |
+| `multiline` | boolean | 是否设置了`m`标记 |
+| `dotAll` | boolean | 是否设置了`s`标记 |
+| `source` | string | 正则表达式的字面量字符串（传给构造函数的模式字符串），没有开头和结尾的斜杠 |
+| `flags` | string | 正则表达式的标记字符串 |
+
+例子：获取`source`
+
+```js
+const reg = new RegExp("a\\[b");
+reg.test("a[b"); // true
+reg.source; // a\\[b
+```
+
+返回传入的 pattern 字符串`a\\[b`，不是字面量对象的`a\[b`
+
+## exec()
+
+```js
+const reg = /regexp/.exec('regexp')
+```
+
+常用于捕获匹配，配合`y`或`g`可匹配所有符合的字符串。
+
+有两个属性:
+
+1. input: 要查找的字符串
+2. index: 字符串中匹配模式的起始位置
+
+

@@ -1,0 +1,43 @@
+# entry
+
+## `entry`作为对象，可用的属性
+
+  - `dependOn`: 当前入口依赖项，在加载此入口前，必须加载他们。
+  - `filename`: 生成的文件名。
+  - `import`: 启动时加载的模块。
+  - `library`: 指定库选项以从当前条目捆绑库。
+  - `runtime`: 运行时区块的名称。设置后，将创建一个新的运行时块。它可以设置为 false 避免从 webpack 5.43.0 开始出现新的运行时块。
+  - `publishPath`: 在浏览器中引用此条目的输出文件时，指定这些文件的公共 URL 地址。另请参阅 output.publicPath。
+
+## Separate App and Vendor Entries
+
+在webpack < 4 手动分离应用和第三方包
+
+```js title=webpack.config.js
+module.exports = {
+  entry: {
+    main: './src/app.js',
+    vendor: './src/vendor.js', // 第三方包，单独拆分
+  },
+};
+```
+
+```js title=webpack.prod.js
+module.exports = {
+  output: {
+    filename: '[name].[contenthash].bundle.js',
+  },
+};
+```
+
+```js title=webpack.dev.js
+module.exports = {
+  output: {
+    filename: '[name].bundle.js',
+  },
+};
+```
+
+在 webpack >= 4，推荐使用 `optimization.splitChunks`
+
+## Multi-Page Application

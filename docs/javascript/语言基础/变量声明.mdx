@@ -1,0 +1,124 @@
+# 变量声明
+
+## var 变量提升
+
+```js 
+function foo() {
+  console.log(age);
+  var age = 26;
+}
+foo();   // undefined
+```
+
+之所以不会报错，是因为ECMAScript运行时把它看成等价于如下代码：
+
+```js title=变量提升后
+function foo() {
+  var age;
+  console.log(age);
+  age = 26;
+}
+foo();   // undefined
+```
+
+## let 作用域范围
+
+let声明的范围是块作用域，而var声明的范围是函数作用域。
+
+```js title=let作用域
+if (true) {
+  var name = 'Matt';
+  console.log(name); // Matt
+}
+console.log(name);    // Matt
+if (true) {
+  let age = 26;
+  console.log(age);    // 26
+}
+console.log(age);      // ReferenceError: age没有定义
+```
+
+## let 暂时性死区
+
+```js title=
+// name会被提升
+console.log(name); // undefined
+var name = 'Matt';
+// age不会被提升
+console.log(age); // ReferenceError:age没有定义
+let age = 26;
+```
+
+在解析代码时，JavaScript引擎也会注意出现在块后面的let声明，只不过在此之前不能以任何方式来引用未声明的变量。
+在let声明之前的执行瞬间被称为“暂时性死区”（temporal dead zone），在此阶段引用任何后面才声明的变量都会抛出ReferenceError。
+
+## let 全局声明
+
+与var关键字不同，使用let在全局作用域中声明的变量不会成为window对象的属性。
+
+```js title=
+var name = 'Matt';
+console.log(window.name); // 'Matt'
+let age = 26;
+console.log(window.age);   // undefined
+```
+
+## let 在多个script中声明
+
+如果定义在多个`script`中的`let`变量相同，则报错，包括`src`引入的。
+
+```html
+    <script>
+      var name = 'Nicholas';
+      let age = 26;
+    </script>
+    <script>
+      var name = 'Matt';
+      let age = 36; // 报错
+    </script>
+```
+
+## let: for循环中的let声明
+
+在let出现之前，for循环定义的迭代变量会渗透到循环体外部：
+
+```js title=
+for (var i = 0; i < 5; ++i) {
+  // 循环逻辑
+}
+console.log(i); // 5
+```
+
+改成使用let之后，这个问题就消失了，因为迭代变量的作用域仅限于for循环块内部：
+
+```js title=
+for (let i = 0; i < 5; ++i) {
+  // 循环逻辑
+}
+console.log(i); // ReferenceError: i没有定义
+```
+
+在使用var的时候，最常见的问题就是对迭代变量的奇特声明和修改：
+
+```js title=var + for + setTimeout
+for (var i = 0; i < 5; ++i) {
+    setTimeout(() => console.log(i), 0)
+}
+// 你可能以为会输出0、1、2、3、4
+// 实际上会输出5、5、5、5、5
+```
+
+**之所以会这样，是因为在退出循环时，迭代变量保存的是导致循环退出的值：5。
+在之后执行超时逻辑时，所有的i都是同一个变量，因而输出的都是同一个最终值。**
+
+**而在使用let声明迭代变量时，JavaScript引擎在后台会为每个迭代循环声明一个新的迭代变量。
+每个setTimeout引用的都是不同的变量实例，所以console.log输出的是我们期望的值，也就是循环执行过程中每个迭代变量的值。**
+
+```js title=
+for (let i = 0; i < 5; ++i) {
+    setTimeout(() => console.log(i), 0)
+}
+// 会输出0、1、2、3、4
+```
+
+这种每次迭代声明一个独立变量实例的行为适用于所有风格的for循环，包括for-in和for-of循环。

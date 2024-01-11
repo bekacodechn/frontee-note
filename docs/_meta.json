@@ -1,13 +1,28 @@
 [
   {
-    "text": "Guide",
-    "link": "/guide/",
-    "activeMatch": "/guide/"
+    "text": "javascript",
+    "items": [
+      {
+        "text": "javascript",
+        "link": "/javascript/index",
+        "activeMatch": "/javascript/index"
+      }
+    ]
   },
   {
     "text": "webpack",
-    "link": "/webpack/",
-    "activeMatch": "/webpack/"
+    "items": [
+      {
+        "text": "webpack使用",
+        "link": "/webpack/index",
+        "activeMatch": "/webpack/index"
+      },
+      {
+        "text": "webpack文章",
+        "link": "/webpack/article/",
+        "activeMatch": "/webpack/article/"
+      }
+    ]
   },
   {
     "text": "API",

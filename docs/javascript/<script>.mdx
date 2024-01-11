@@ -1,0 +1,84 @@
+# \<script>
+
+## 行内代码
+
+存在`src`则`行内代码`不执行。
+
+## async
+
+1. 对于普通脚本，如果存在 `async` 属性，那么普通脚本会被并行请求，并尽快解析和执行。
+2. 对于[模块脚本](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Modules)，如果存在 `async` 属性，那么脚本及其所有依赖都会在延缓队列中执行，因此它们会被并行请求，并尽快解析和执行。
+3. 该属性能够消除**解析阻塞的 Javascript**。解析阻塞的 Javascript 会导致浏览器必须加载并且执行脚本，之后才能继续解析。`defer` 在这一点上也有类似的作用。
+4. 多个`async`之间不保持执行顺序，如第二个脚本可能在第一个脚本之前执行，要看哪个先下载完。
+
+## defer
+
+1. 和 `async`类似，但脚本会要在文档被解析后，但在触发 DOMContentLoaded 事件之前执行的。
+2. 包含 `defer` 属性的脚本将`阻塞 DOMContentLoaded` 事件触发，直到脚本完成加载并执行。
+3. 多个`defer`之间保持执行顺序，如第一个脚本一直被挂起，则第二个脚本即使下载完也要等第一个脚本先执行，这和`async`不同。
+
+:::tip
+
+type="module" 默认是 `defer`模式
+
+:::
+
+## crossorigin
+
+`没有设置crossorigin`:
+
+* `script`标签去请求资源的时候，request是没有`origin`头的。
+* `script`标签请求跨域资源的时候，内部运行如果报错的话，`window.onerror` 捕获的时候，内部的`error.message`只能看到`Script error.`看不到完整的错误内容。这个应该是浏览器的安全策略。
+
+`设置crossorigin`:
+
+* 设置了`crossorigin`就相当于开启了cors校验，请求时会带上`origin`头。
+* 开启cors校验之后，跨域的script资源在运行出错的时候，`window.onerror`可以捕获到完整的错误信息。
+* `crossorigin=use-credentials`可以跨域带上cookie。
+* 默认`anonymous`
+
+[参考链接](https://juejin.cn/post/6969825311361859598)
+
+## integrity
+允许比对接收到的资源和指定的加密签名以验证子资源完整性（SRI, Subresource Integrity）。如果接收到的资源的签名与这个属性指定的签名不匹配，则页面会报错，脚本不会执行。
+这个属性可以用于确保内容分发网络（CDN, Content Delivery Network）不会提供恶意内容
+
+## fetchpriority 【todo】
+提供一个指示，说明在获取外部脚本时要使用的相对优先级。
+
+允许的值： `high`、`low`、`auto`
+
+## nomodule
+
+在不支持模块化 JavaScript 的旧浏览器中提供回退脚本。支持`src`或`行内代码`
+
+## 动态加载脚本
+
+```js title=动态加载脚本
+let script = document.createElement('script');
+script.src = 'gibberish.js';
+script.async = false;
+document.head.appendChild(script);
+```
+
+1. 正式添加到`DOM`中才会真正发起请求。
+2. 默认情况下，以这种方式创建的`script`元素是以异步方式加载的，相当于添加了async属性，可能存在兼容性问题，因此，统一设置为`async=false`
+
+:::info 优化
+`以这种方式获取的资源对浏览器预加载器是不可见的。这会严重影响它们在资源获取队列中的优先级。`根据应用程序的工作方式以及怎么使用，这种方式可能会严重影响性能。要想让预加载器知道这些动态请求文件的存在，可以在文档头部显式声明它们：
+
+```html
+<link rel="preload" href="gibberish.js">
+```
+:::
+
+## noscript标签
+
+在不支持`script`或`关闭script`时执行行内代码。如：
+```html
+<noscript>
+    <p>This page requires a JavaScript-enabled browser.</p>
+</noscript>
+```
+
+

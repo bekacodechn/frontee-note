@@ -1,0 +1,267 @@
+# Symbol
+
+符号是原始值，且符号实例是唯一、不可变的。符号的用途是确保对象属性使用唯一标识符，不会发生属性冲突的危险。
+
+```js
+let sym = Symbol();
+console.log(typeof sym); // symbol
+```
+
+## Symbol.for
+
+```js title=
+let fooGlobalSymbol = Symbol.for('foo');         // 创建新符号
+let otherFooGlobalSymbol = Symbol.for('foo');   // 重用已有符号
+console.log(fooGlobalSymbol === otherFooGlobalSymbol);   // true
+```
+
+## Symbol.keyFor
+
+```js title=
+// 创建全局符号
+let s = Symbol.for('foo');
+console.log(Symbol.keyFor(s));    // foo
+// 创建普通符号
+let s2 = Symbol('bar');
+console.log(Symbol.keyFor(s2));   // undefined
+```
+
+## 作为属性
+
+凡是可以使用字符串或数值作为属性的地方，都可以使用符号。
+这就包括了对象字面量属性和`Object.defineProperty()/Object.defineProperties()`定义的属性。
+
+```js title=
+let s1 = Symbol('foo'),
+    s2 = Symbol('bar'),
+    s3 = Symbol('baz'),
+    s4 = Symbol('qux');
+let o = {
+  [s1]: 'foo val'
+};
+// 这样也可以：o[s1] = 'foo val';
+console.log(o);
+// {Symbol(foo): foo val}
+Object.defineProperty(o, s2, {value: 'bar val'});
+console.log(o);
+// {Symbol(foo): foo val, Symbol(bar): bar val}
+Object.defineProperties(o, {
+  [s3]: {value: 'baz val'},
+  [s4]: {value: 'qux val'}
+});
+console.log(o);
+// {Symbol(foo): foo val, Symbol(bar): bar val,
+//   Symbol(baz): baz val, Symbol(qux): qux val}
+```
+
+## 获取属性
+
+```js title=
+let s1 = Symbol('foo'),
+    s2 = Symbol('bar');
+let o = {
+  [s1]: 'foo val',
+  [s2]: 'bar val',
+  baz: 'baz val',
+  qux: 'qux val'
+};
+console.log(Object.getOwnPropertySymbols(o));
+// [Symbol(foo), Symbol(bar)]
+console.log(Object.getOwnPropertyNames(o));
+// ["baz", "qux"]
+console.log(Object.getOwnPropertyDescriptors(o));
+// {baz: {...}, qux: {...}, Symbol(foo): {...}, Symbol(bar): {...}}
+console.log(Reflect.ownKeys(o));
+// ["baz", "qux", Symbol(foo), Symbol(bar)]
+```
+
+- `Object.getOwnPropertySymbols(o)`返回 Symbol 组成的数组。
+- `Object.getOwnPropertyNames(o)`返回 普通属性 组成的数组。
+- `Object.getOwnPropertyDescriptors(o)`返回 所有属性 组成的属性描述符数组。
+- `Reflect.ownKeys(o)`返回 普通+Symbol 组成的数组。
+
+## 从属性查找Symbol
+
+因为符号属性是对内存中符号的一个引用，所以直接创建并用作属性的符号不会丢失。
+但是，如果没有显式地保存对这些属性的引用，那么必须遍历对象的所有符号属性才能找到相应的属性键：
+
+```js title=
+let o = {
+  [Symbol('foo')]: 'fooval',
+  [Symbol('bar')]: 'barval'
+};
+console.log(o);
+// {Symbol(foo): "foo val", Symbol(bar): "bar val"}
+let barSymbol = Object.getOwnPropertySymbols(o)
+              .find((symbol) => symbol.toString().match(/bar/));
+console.log(barSymbol);
+// Symbol(bar)
+```
+
+## Symbol.asyncIterator
+
+`for await of` 内部使用 `Symbol.asyncIterator`
+
+```js title=
+class Emitter {
+  constructor(max) {
+    this.max = max;
+    this.asyncIdx = 0;
+  }
+  async＊[Symbol.asyncIterator](){
+    while(this.asyncIdx < this.max) {
+      yield new Promise((resolve) => resolve(this.asyncIdx++));
+    }
+  }
+}
+async function asyncCount() {
+  let emitter = new Emitter(5);
+  for await(const x of emitter) {
+    console.log(x);
+  }
+}
+asyncCount();
+// 0
+// 1
+// 2
+// 3
+// 4
+```
+
+## Symbol.hasInstance
+
+`instanceof`内部调用`Symbol.hasInstance`
+
+Symbol.hasInstance 属性定义在Function的原型上，因此默认在所有函数和类上都可以调用。
+由于instanceof操作符会在原型链上寻找这个属性定义，就跟在原型链上寻找其他属性一样，因此可以在继承的类上通过静态方法重新定义这个函数：
+
+```js title=
+class Bar {}
+class Baz extends Bar {
+  static[Symbol.hasInstance](){
+    return false;
+  }
+}
+let b = new Baz();
+console.log(Bar[Symbol.hasInstance](b)); // true
+console.log(b instanceof Bar);              // true
+console.log(Baz[Symbol.hasInstance](b));//false
+console.log(b instanceof Baz);             //false
+```
+
+## Symbol.isConcatSpreadable
+
+`Array.prototype.concat(xx)`内部调用`Symbol.isConcatSpreadable`，这个Symbol要设置到`xx`中。
+
+规则： 
+
+- 数组对象默认情况下会被打平到已有的数组，false或假值会导致整个对象被追加到数组末尾。
+- 类数组对象默认情况下会被追加到数组末尾，true或真值会导致这个类数组对象被打平到数组实例。
+- 其他不是类数组对象的对象在Symbol.isConcatSpreadable被设置为true的情况下将被忽略。
+
+```js title=
+let initial = ['foo'];
+
+// 数组，默认打平
+let array = ['bar'];
+console.log(array[Symbol.isConcatSpreadable]);   // undefined
+console.log(initial.concat(array));                // ['foo', 'bar']
+array[Symbol.isConcatSpreadable]=false;
+console.log(initial.concat(array));                // ['foo', Array(1)]
+
+// 类数组，默认追加
+let arrayLikeObject = { length: 1, 0: 'baz' };
+console.log(arrayLikeObject[Symbol.isConcatSpreadable]);   // undefined
+console.log(initial.concat(arrayLikeObject));                // ['foo', {...}]
+arrayLikeObject[Symbol.isConcatSpreadable]=true;
+console.log(initial.concat(arrayLikeObject));                // ['foo', 'baz']
+
+// 非数组/非类数组 的其他值，Symbol.isConcatSpreadable 设置为true，会被忽略
+let otherObject = new Set().add('qux');
+console.log(otherObject[Symbol.isConcatSpreadable]);   // undefined
+console.log(initial.concat(otherObject));                // ['foo', Set(1)]
+otherObject[Symbol.isConcatSpreadable]=true;
+console.log(initial.concat(otherObject));                // ['foo']
+```
+
+## Symbol.iterator
+
+`for - of` 内部调用`Symbol.iterator`
+
+```js title=
+class Emitter {
+  constructor(max) {
+    this.max = max;
+    this.idx = 0;
+  }
+  *[Symbol.iterator] (){
+    while(this.idx < this.max) {
+      yield this.idx++;
+    }
+  }
+}
+function count() {
+  let emitter = new Emitter(5);
+  for (const x of emitter) {
+    console.log(x);
+  }
+}
+count();
+// 0
+// 1
+// 2
+// 3
+// 4
+```
+
+## Symbol.match
+
+
+## Symbol.replace
+
+
+## Symbol.search
+
+
+## Symbol.species
+
+
+## Symbol.split
+
+
+## Symbol.toPrimitive
+
+
+## Symbol.toStringTag
+
+这个符号作为一个属性表示“一个字符串，该字符串用于创建对象的默认字符串描述。
+由内置方法`Object.prototype.toString()使用`”。
+
+通过toString()方法获取对象标识时，会检索由Symbol.toStringTag指定的实例标识符，默认为"Object"。
+内置类型已经指定了这个值，但自定义类实例还需要明确定义。
+
+```js title=
+let s = new Set();
+console.log(s);                            // Set(0) {}
+console.log(s.toString());              // [object Set]
+console.log(s[Symbol.toStringTag]);   // Set
+class Foo {}
+let foo = new Foo();
+console.log(foo);                            // Foo {}
+console.log(foo.toString());              // [object Object]
+console.log(foo[Symbol.toStringTag]);   // undefined
+class Bar {
+  constructor() {
+    this[Symbol.toStringTag] = 'Bar';
+  }
+}
+let bar = new Bar();
+console.log(bar);                            // Bar {}
+console.log(bar.toString());              // [object Bar]
+console.log(bar[Symbol.toStringTag]);   // Bar
+```
+
+## Symbol.unscopables
+
+
+

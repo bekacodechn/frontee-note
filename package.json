@@ -1,16 +1,22 @@
 {
-  "name": "rspress-doc-template",
+  "name": "webpack-note",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "rspress dev",
+    "dev:debug": "DEBUG=rsbuild rspress dev",
     "build": "rspress build",
-    "preview": "rspress preview"
+    "preview": "rspress preview",
+    "meta": "tsx ./plugins/node-generate-meta.ts"
   },
   "dependencies": {
-    "rspress": "^1.0.0"
+    "antd": "^5.12.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^16"
+    "@rspress/plugin-playground": "^1.9.0",
+    "@types/node": "^16",
+    "rspress": "^1.9.0"
   }
 }

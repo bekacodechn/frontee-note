@@ -1,0 +1,94 @@
+# Map
+
+## 使用二维数组初始化
+
+```js title=
+// 使用嵌套数组初始化映射
+const m1 = new Map([
+  ["key1", "val1"],
+  ["key2", "val2"],
+  ["key3", "val3"],
+]);
+console.log(m1.size); // 3
+
+```
+
+## 使用迭代器初始化
+
+使用自定义迭代器初始化映射，效果和传入二维数组相同
+
+```js title=自定义迭代器
+const m2 = new Map({
+  [Symbol.iterator]: function* () {
+    yield ["key1", "val1"];
+    yield ["key2", "val2"];
+    yield ["key3", "val3"];
+  },
+});
+console.log(m2.size); // 3
+console.log(m2.get("key2")); // "val2"
+
+```
+
+## key为 NaN 或 -0
+
+`Map`将`NaN`和`+0、-0`当成相同`key`
+
+```js title=
+const nan = NaN
+const zero = -0
+
+const m = new Map()
+m.set(nan, 10)
+m.set(zero, 20)
+
+const nanValue = m.get(NaN)
+const zeroValue = m.get(0)
+
+console.log('nanValue', nanValue) // 10
+console.log('zeroValue', zeroValue) // 20
+```
+
+## 解构 Map
+
+因为`Map`实现了`iterator`，所以可以结构，也可以`for...of`迭代。
+
+```js title=
+const m = new Map([
+  [1, "a"],
+  [2, "b"],
+  [3, "c"]
+])
+
+const arr = [...m];
+// [ [ 1, 'a' ], [ 2, 'b' ], [ 3, 'c' ] ]
+console.log('arr', arr);
+```
+
+## 选择Object还是Map
+
+### 内存占用
+
+不同浏览器的情况不同，但给定固定大小的内存，Map大约可以比Object多存储50%的键/值对。
+
+### 插入性能
+
+插入速度并不会随着键/值对数量而线性增加。如果代码涉及大量插入操作，Map的性能更佳。
+
+### 查找速度
+
+1. 在把Object当成数组使用的情况下（比如使用连续整数作为属性），浏览器引擎可以进行优化，在内存中使用更高效的布局。这对Map来说是不可能的。
+2. 性能差异极小，但Object略快。
+
+### 删除性能
+
+使用delete删除Object属性的性能差（折中方案是将属性值设置为 undefined 或 null）,Map 更优。
+
+### Object vs Map 总结
+
+| 比较纬度 | 哪个更优 |
+| :- | :- |
+| 内存占用 | Map |
+| 插入性能 | Map |
+| 查找性能 | Object |
+| 删除性能 | Map |

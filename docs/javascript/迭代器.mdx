@@ -1,0 +1,148 @@
+# 迭代器
+
+## 哪些内置类型实现了迭代器
+
+很多内置类型都实现了Iterable接口：
+- 字符串
+- 数组
+- 映射 Map
+- 集合 Set
+- arguments对象
+- NodeList等DOM集合类型
+
+## 验证是否实现了迭代器
+
+查看`[Symbol.iterator]`是否为`undefined`，如果不是则实现了迭代器
+
+```js title=
+console.log(arguments[Symbol.iterator]); // [Function: values
+```
+
+## 实现了迭代器默认可用如下特性
+
+:::info
+只要实现了`迭代器`，都可以应用于下面的方法中。
+:::
+
+- for-of循环
+- 数组解构
+- 扩展操作符
+- Array.from()
+- 创建集合 Set
+- 创建映射 Map
+- Promise.all()接收由期约组成的可迭代对象
+- Promise.race()接收由期约组成的可迭代对象
+- yield＊操作符，在生成器中使用
+
+
+`arguments`实现了迭代器，所以可以放到`Set`中
+
+```js title=
+function fn() {
+  const m = new Set(arguments)
+  // Set(3) { 1, 2, 3 }
+  console.log('m', m)
+
+  const m2 = new Set('abcdabcdabcd')
+  // Set(4) { 'a', 'b', 'c', 'd' }
+  console.log('m2', m2)
+}
+
+fn(1, 2, 3, 1)
+```
+
+## 自定义迭代器
+
+```js title=
+class Counter {
+  constructor(max) {
+    this.max = max;
+    this.count = 1;
+  }
+
+  next() {
+    const done = this.count > this.max
+    return {
+      done,
+      value: this.count++
+    }
+  }
+
+  [Symbol.iterator]() {
+    return this;
+  }
+}
+
+const counter = new Counter(5)
+const arr = [...counter]
+console.log('arr', arr);
+```
+
+## 提前终止迭代器
+
+`[Symbol.iterator]()`除了返回`next()`，还可以返回可选的`return()`，该方法会在提前结束迭代时执行。
+`return()`必须返回有效的`iterator result`对象，比如返回`{ done: true }`。
+
+可能的情况包括：
+
+- `for-of`循环通过`break`、`continue`、`return`或`throw`提前退出；
+- 解构操作并未消费所有值。
+
+
+
+```js title=
+class Counter {
+  constructor(max) {
+    this.max = max;
+  }
+
+  [Symbol.iterator]() {
+    let count = 1;
+    const max = this.max;
+    return {
+      next() {
+        return {
+          done: count > max,
+          value: count++,
+        };
+      },
+      return() {
+        console.log('提前结束')
+        return {
+          done: true
+        }
+      }
+    };
+  }
+}
+
+const counter1 = new Counter(3)
+// 迭代到第三个元素时done为false，第四个时才为true
+const [a, b, c] = counter1; // 提前结束
+
+```
+
+## 从未关闭的迭代器继续迭代
+
+```js title=
+const arr = [1, 2, 3, 4, 5];
+// 迭代器
+const iter = arr[Symbol.iterator]();
+
+for (const val of iter) {
+  // 1 2 3
+  console.log('val', val)
+  if (val === 3) break
+}
+
+// 从未关闭的迭代器继续迭代
+for (const val of iter) {
+  // 4 5
+  console.log('val2', val)
+}
+```
+
+
+
+
+

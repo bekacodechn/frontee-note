@@ -1,0 +1,71 @@
+# 日期
+
+将日期保存为自协调世界时（UTC, Universal Time Coordinated）时间1970年1月1日午夜（零时）至今所经过的毫秒数。
+
+## Date.parse
+
+解析字符串为时间戳。
+
+- “月/日/年”，如"5/23/2019"；
+- “月名 日，年”，如"May 23, 2019"；
+- “周几 月名 日 年 时：分：秒 时区”，如"Tue May 232019 00:00:00 GMT-0700"；
+- ISO 8601扩展格式“YYYY-MM-DDTHH:mm:ss.sssZ”，如2019-05-23T00:00:00
+
+比如，要创建一个表示“2019年5月23日”的日期对象，可以使用以下代码：
+
+```js title=
+const someDate = new Date(Date.parse("May 23, 2019"));
+```
+
+也可以直接：
+
+```js title=
+// 内部会调用 Date.parse()
+const someDate = new Date("May 23, 2019");
+```
+
+如果无法解析，将返回`NaN`
+
+## Date.UTC()
+
+`UTC()` 方法与 [`Date`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date) 构造函数有两点不同：
+
+1. `Date.UTC()` 方法使用协调世界时代替本地时间。
+2. `Date.UTC()` 方法返回一个时间数值，而不是一个 [`Date`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date) 对象。
+
+```js title=使用 UTC 时间代替本地时间创建了一个 Date 对象
+const utcDate = new Date(Date.UTC(2018, 11, 1, 0, 0, 0));
+```
+
+## 格式化日期
+
+```js title=
+const date = new Date(2000, 0, 1, 10, 20, 30);
+
+// Sat Jan 01 2000 10:20:30 GMT+0800 (中国标准时间)
+console.log( date.toString())
+// Sat, 01 Jan 2000 02:20:30 GMT
+console.log(date.toUTCString())
+// 2000/1/1 10:20:30
+console.log( date.toLocaleString())
+
+// Sat Jan 01 2000
+console.log( date.toDateString())
+// 2000/1/1
+console.log( date.toLocaleDateString())
+
+// 10:20:30 GMT+0800 (中国标准时间)
+console.log(date.toTimeString())
+// 10:20:30
+console.log(date.toLocaleTimeString())
+```
+
+:::info toGMTString()
+还有一个方法叫toGMTString()，这个方法跟toUTCString()是一样的，目的是为了向后兼容。不过，规范建议新代码使用toUTCString()。
+:::
+
+## 日期/时间方法
+
+![20240110164253](https://blog-1318409910.cos.ap-beijing.myqcloud.com/blog/20240110164253.png)
+
+![20240110164322](https://blog-1318409910.cos.ap-beijing.myqcloud.com/blog/20240110164322.png)

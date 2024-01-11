@@ -1,0 +1,22 @@
+[
+  {
+    "type": "file",
+    "name": "数值类型",
+    "label": "数值类型"
+  },
+  {
+    "type": "file",
+    "name": "字符串类型",
+    "label": "字符串类型"
+  },
+  {
+    "type": "file",
+    "name": "Symbol",
+    "label": "Symbol"
+  },
+  {
+    "type": "file",
+    "name": "对象",
+    "label": "对象"
+  }
+]

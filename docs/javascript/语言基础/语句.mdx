@@ -1,0 +1,96 @@
+# 语句
+
+## for...in
+
+如果for-in循环要迭代的变量是null或undefined，则不执行循环体。【不报错】
+
+```js title=
+for (const val in null) {
+  console.log('val', val)
+}
+```
+
+## for...of
+
+for-of语句是一种严格的迭代语句，用于遍历可迭代对象的元素。
+
+## 标签语句
+
+```js title=
+label: statement
+```
+
+例子：
+
+```js title=
+start: for (let i = 0; i < count; i++) {
+  console.log(i);
+}
+```
+
+## break和continue语句
+
+在`for循环`中使用，可配合 标签语句 使用。
+
+```js title=
+let num = 0;
+outermost:
+for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    if (i == 5 && j == 5) {
+      break outermost;
+    }
+    num++;
+  }
+}
+console.log(num); // 55
+```
+
+```js title=
+let num = 0;
+outermost:
+for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    if (i == 5 && j == 5) {
+      continue outermost;
+    }
+    num++;
+  }
+}
+console.log(num); // 95
+```
+
+## with语句
+
+with语句的用途是将代码作用域设置为特定的对象，其语法是：
+
+```js title=
+with (expression) statement;
+```
+
+如
+
+```js title=
+let qs = location.search.substring(1);
+let hostName = location.hostname;
+let url = location.href;
+```
+
+转换为:
+
+```js title=
+with(location) {
+  let qs = search.substring(1);
+  let hostName = hostname;
+  let url = href;
+}
+```
+
+这里，with语句用于连接location对象。这意味着在这个语句内部，每个变量首先会被认为是一个局部变量。
+如果没有找到该局部变量，则会搜索location对象，看它是否有一个同名的属性。如果有，则该变量会被求值为location对象的属性。
+
+**严格模式不允许使用with语句，否则会抛出错误。**
+
+## switch 语句
+
+略

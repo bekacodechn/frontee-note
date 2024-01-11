@@ -1,0 +1,12 @@
+:root.dark {
+  --rp-c-bg: #191a1f;
+}
+
+.rspress-doc :not(pre, div, a) > code {
+  border-radius: 5px !important;
+  padding: 3px 6px;
+}
+
+strong.font-semibold {
+  color: #ffa85c;
+}

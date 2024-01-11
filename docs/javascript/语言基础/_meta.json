@@ -1,0 +1,22 @@
+[
+  {
+    "type": "file",
+    "name": "保留字",
+    "label": "保留字"
+  },
+  {
+    "type": "file",
+    "name": "变量声明",
+    "label": "变量声明"
+  },
+  {
+    "type": "file",
+    "name": "语句",
+    "label": "语句"
+  },
+  {
+    "type": "file",
+    "name": "操作符",
+    "label": "操作符"
+  }
+]

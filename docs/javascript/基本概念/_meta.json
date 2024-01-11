@@ -1,0 +1,22 @@
+[
+  {
+    "type": "file",
+    "name": "ECMAScript",
+    "label": "ECMAScript"
+  },
+  {
+    "type": "file",
+    "name": "DOM",
+    "label": "DOM"
+  },
+  {
+    "type": "file",
+    "name": "BOM",
+    "label": "BOM"
+  },
+  {
+    "type": "file",
+    "name": "文档模式",
+    "label": "文档模式"
+  }
+]

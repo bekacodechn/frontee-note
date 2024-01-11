@@ -1,0 +1,167 @@
+# 小知识
+
+## typeof
+
+使用`typeof`检测未定义的变量，返回`undefined`
+
+```js {4}
+let a;
+
+typeof a; // undefined
+typeof abcd; // undefined;
+```
+
+## 函数的参数：按值传递
+
+ECMAScript中所有函数的参数都是按值传递，包括对象。
+
+```js title=
+function setName(obj) {
+  obj.name = "Nicholas";
+  obj = new Object();
+  obj.name = "Greg";
+}
+let person = new Object();
+setName(person);
+console.log(person.name); // "Nicholas"
+
+```
+
+## 变量存储
+
+- 原始值大小固定，因此保存在栈内存上。
+- 引用值是对象，存储在堆内存上。
+
+## URL编码
+
+URL编码可以处理url中浏览器不认识的部分。
+
+有两种方式编码URL: `encodeURI()`和`encodeURIComponent()`
+
+区别：
+
+- `encodeURI()`不会编码属于URL组件的特殊字符，比如冒号、斜杠、问号、井号。
+- `encodeURIComponent()`会编码它发现的所有非标准字符。
+
+```js title=
+let uri = "http://www.wrox.com/illegal value.js#start";
+// "http://www.wrox.com/illegal%20value.js#start"
+console.log(encodeURI(uri));
+// "http%3A%2F%2Fwww.wrox.com%2Fillegal%20value.js%23start"
+console.log(encodeURIComponent(uri));
+```
+
+这里使用encodeURI()编码后，除空格被替换为%20之外，没有任何变化。而encodeURI-Component()方法将所有非字母字符都替换成了相应的编码形式。
+**这就是使用encodeURI()编码整个URI，但只使用encodeURIComponent()编码那些会追加到已有URI后面的字符串的原因。**
+
+与之对应的有decodeURI()和decodeURIComponent()。
+
+## eval()
+
+`eval()`是一个完整的ECMAScript解释器，它接收一个参数，即一个要执行的ECMAScript（JavaScript）字符串。
+
+```js title=
+eval("console.log('hi')");
+```
+
+等价于
+
+```js title=
+console.log("hi");
+```
+
+:::info eval特点
+就地解释，因此有相同上下文，作用域链。
+:::
+
+```js title=eval访问外部数据
+let msg = "hello world";
+eval("console.log(msg)");   // "hello world"
+```
+
+类似地，可以在eval()内部定义一个函数或变量，然后在外部代码中引用:
+
+```js title=外部访问eval数据
+eval("function sayHi() { console.log('hi'); }");
+sayHi();
+```
+
+通过eval()定义的任何变量和函数都不会被提升，这是因为在解析代码的时候，它们是被包含在一个字符串中的。
+它们只是在eval()执行的时候才会被创建。
+
+```js title=
+{
+  eval("let a = 10;");
+}
+
+console.log('a', a); // 报错
+```
+
+## new Array()
+
+1. `new Array(2)` 创建长度为`2`的空槽`[empty]`，调用`map`等函数时不会执行。
+2. `Array.of(2)` 创建`[2]`; `Array.of(1, 2)`创建`[1, 2]`。
+3. `new Array(1, 2)` 创建`[1, 2]`。
+4. `new Array(undefined)` 创建`[undefined]`。
+5. `[,,,]` 创建 `length=3`的空槽。
+
+## Array 稀疏数组
+
+带有空槽的称为`稀疏数组`。
+
+```js title=稀疏数组array
+const arr = [];
+arr.push(1);
+
+// 创建了空槽
+arr.length = 5;
+arr.push(2);
+
+// 创建了空槽
+arr[9]= 3;
+
+// [ 1, <4 empty items>, 2, <3 empty items>, 3 ]
+console.log(arr);
+```
+
+如果对`arr`执行`forEach`将只执行两次（空槽不执行）。
+
+## 检测数组
+
+1. `value instanceof Array`
+2. `Array.isArray(arr)`
+
+`instanceof`的问题：
+
+如果页面有多个`iframe`，将数组从`iframe a`传递到`iframe b`，在`b`中使用`instanceof`检测数组时将为`false`。
+(因为不同框架的全局执行上下文不同，因此他们有不同版本的`Array`构造函数)
+
+## 数组排序
+
+默认`Array.prototype.sort`会将元素转为字符串，然后按照它们的 UTF-16 码元值升序排序。
+
+```js title=
+const values = [0, 1, 5, 10, 15];
+values.sort();
+console.log(values);   // 0,1,10,15,5
+```
+
+`sort` 比较函数原理：
+
+1. 如果第一个参数应该排在第二个参数前面，就返回负值；
+2. 如果两个参数相等，就返回0；
+3. 如果第一个参数应该排在第二个参数后面，就返回正值。
+
+:::info
+`sort()` 方法保留空槽。如果源数组是稀疏的，则空槽会被移动到数组的末尾，并始终排在所有 undefined 元素的后面。
+
+最终顺序：[有值，有值... , undefiend, undefined..., empty, epmty...]
+:::
+
+## 生成器
+
+箭头函数不能用来定义生成器函数。
+
+
+
+

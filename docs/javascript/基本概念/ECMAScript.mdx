@@ -1,0 +1,47 @@
+# ECMAScript
+
+## ECMAScript包括哪些
+Web浏览器只是ECMAScript实现可能存在的一种宿主环境（host environment）。
+宿主环境提供ECMAScript的基准实现和与环境自身交互必需的扩展。扩展（比如DOM）
+使用ECMAScript核心类型和语法，提供特定于环境的额外功能。其他宿主环境还有服务器端JavaScript平台Node.js和即将被淘汰的Adobe Flash。
+
+ECMAScript包括：
+
+- 语法
+- 类型
+- 语句
+- 关键字
+- 保留字
+- 操作符
+- 全局对象
+
+ECMAScript只是对实现这个规范描述的所有方面的一门语言的称呼。JavaScript实现了ECMAScript，而Adobe ActionScript同样也实现了ECMAScript。
+
+## ECMAScript版本
+
+1. ECMA-262的第1版本质上跟网景的JavaScript 1.1相同，只不过删除了所有浏览器特定的代码，外加少量细微的修改。
+
+2. ECMA-262第2版只是做了一些编校工作，主要是为了更新之后严格符合ISO/IEC-16262的要求，并没有增减或改变任何特性。
+ECMAScript实现通常不使用第2版来衡量符合性（conformance）。
+
+3. ECMA-262第3版第一次真正对这个标准进行更新，更新了字符串处理、错误定义和数值输出。
+此外还增加了对正则表达式、新的控制语句、try/catch异常处理的支持，以及为了更好地让标准国际化所做的少量修改。
+对很多人来说，这标志着ECMAScript作为一门真正的编程语言的时代终于到来了。
+
+...
+
+4. ECMA-262第6版，俗称ES6、ES2015或ES Harmony（和谐版），于2015年6月发布。
+这一版包含了大概这个规范有史以来最重要的一批增强特性。ES6正式支持了`类`、`模块`、`迭代器`、`生成器`、`箭头函数`、`promise`、`反射`、`代理`和众多新的数据类型。
+
+5. ECMA-262第7版，也称为ES7或ES2016，于2016年6月发布。
+这次修订只包含少量语法层面的增强，如`Array.prototype.includes`和`指数操作符`。
+
+6. ECMA-262第8版，也称为ES8、ES2017，完成于2017年6月。
+这一版主要增加了异步函数`async/await`、`SharedArrayBuffer`及`Atomics API`，以及`Object.values()`/`Object.entries()`/`Object. getOwnPropertyDescriptors()`和`字符串填充方法`，另外`明确支持对象字面量最后的逗号`。
+
+7. ECMA-262第9版，也称为ES9、ES2018，发布于2018年6月。
+这次修订包括`异步迭代`、`剩余和扩展属性`、一组新的正则表达式特性、`Promise finally()`，以及模板字面量修订。
+
+8. ECMA-262第10版，也称为ES10、ES2019，发布于2019年6月。
+这次修订增加了`Array.prototype. flat()/flatMap()`、`String.prototype.trimStart()/trimEnd()`、`Object.fromEntries()`方法，
+以及`Symbol.prototype.description`属性，明确定义了`Function.prototype.toString()的返回值`并`固定了Array.prototype.sort()的顺序`。另外，这次修订解决了与JSON字符串兼容的问题，并定义了catch子句的可选绑定

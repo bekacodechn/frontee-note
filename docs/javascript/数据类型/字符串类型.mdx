@@ -1,0 +1,109 @@
+# 字符串类型
+
+## String()
+
+不确定一个值是不是null或undefined，可以使用String()转型函数，它始终会返回表示相应类型值的字符串。
+
+`string()`规则如下：
+
+- 如果值有toString()方法，则调用该方法（不传参数）并返回结果。
+- 如果值是null，返回"null"。
+- 如果值是undefined，返回"undefined"。
+
+```js title=
+let value1 = 10;
+let value2 = true;
+let value3 = null;
+let value4;
+console.log(String(value1)); // "10"
+console.log(String(value2));   // "true"
+console.log(String(value3));   // "null"
+console.log(String(value4));   // "undefined"
+```
+
+这里展示了将4个值转换为字符串的情况：一个数值、一个布尔值、一个null和一个undefined。
+数值和布尔值的转换结果与调用toString()相同。因为null和undefined没有toString()方法，所以String()方法就直接返回了这两个值的字面量文本。
+
+:::info
+用加号操作符给一个值加上一个空字符串""也可以将其转换为字符串。
+:::
+
+## 模板字面量标签函数
+
+```js title=
+const a = 6;
+const b = 9;
+
+function simpleTag(strings, ...values) {
+  console.log(strings); // [ '', '+', '=', '' ] 表示变量周围的字符串
+  console.log(values); // [ 6, 9, 15 ] // 变量，不定个数，用剩余运算符接收
+
+  const str = strings.reduce((res, item, index) => {
+    if (index === values.length) return res;
+    
+    res += item + values[index]
+    return res;
+  }, "")
+
+  console.log(str); // 6+9=15
+}
+simpleTag`${a}+${b}=${a+b}`;
+```
+
+## 原始字符串
+
+使用模板字面量也可以直接获取原始的模板字面量内容（如换行符或Unicode字符），而不是被转换后的字符表示。为此，可以使用默认的String.raw标签函数：
+
+```js title=
+/**
+ * Unicode示例
+ */
+// \u00A9 是版权符号
+console.log(`\u00A9`);               // ©
+console.log(String.raw`\u00A9`);   // \u00A9
+
+
+/**
+ * 换行符示例
+ */
+// first line(换行符)second line
+console.log(`first line\nsecond line`);
+
+console.log(String.raw`first line\nsecond line`); // "first line\nsecond line"
+
+
+ /**
+  * 对实际的换行符来说是不行的
+  * 它们不会被转换成转义序列的形式
+  */
+// first line(换行符)second line
+console.log(`first line
+second line`);
+
+// first line(换行符)second line
+console.log(String.raw`first line
+second line`);
+```
+
+另外，也可以通过标签函数的第一个参数，即字符串数组的．raw属性取得每个字符串的原始内容：
+
+```js {7,17,18}
+function printRaw(strings) {
+  console.log('Actual characters:');
+  for (const string of strings) {
+    console.log(string);
+  }
+  console.log('Escaped characters; ');
+  for (const rawString of strings.raw) {
+    console.log(rawString);
+  }
+}
+printRaw`\u00A9${ 'and' }\n`;
+// Actual characters:
+// ©
+//（换行符）
+
+// Escaped characters:
+// \u00A9
+// \n
+```

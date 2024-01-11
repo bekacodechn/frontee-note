@@ -1,0 +1,10 @@
+# 代码片断
+
+## Object.is(x, y) 递归校验
+
+```js title=
+const check = (x, ...args) => {
+  return Object.is(x, args[0]) && (args.length < 2 || check(...args))
+}
+```
+

@@ -1,0 +1,73 @@
+# Set和WeakSet
+
+## Set 使用迭代器实例化
+
+```js title=
+const set = new Set({
+  [Symbol.iterator]: function*() {
+    yield "val1";
+    yield "val2";
+    yield "val3";
+  }
+});
+```
+
+## Set 保留插入顺序
+
+和`Map`相同，保留了插入顺序，可在`迭代器`或`forEach`中实践。
+
+## WeakSet 基本特性
+
+1. 和`WeakMap`差不多，处理的都是`弱集合`。
+2. 直接受对象。
+
+## WeakSet 弱值
+
+:::info
+和 `WeakMap` 原理相同，如已理解可跳过。
+:::
+
+WeakSet中“weak”表示弱集合的值是“弱弱地拿着”的。意思就是，这些值不属于正式的引用，不会阻止垃圾回收。
+
+例子：
+
+```js title=
+const ws = new WeakSet();
+ws.add({});
+```
+
+add()方法初始化了一个新对象，并将它用作一个值。因为没有指向这个对象的其他引用，所以当这行代码执行完成后，这个对象值就会被当作垃圾回收。
+然后，这个值就从弱集合中消失了，使其成为一个空集合。
+
+带有引用的例子：
+
+```js title=
+const ws = new WeakSet();
+const container = {
+  val: {}
+};
+ws.add(container.val);
+function removeReference() {
+  container.val = null;
+}
+```
+
+这一次，container对象维护着一个对弱集合值的引用，因此这个对象值不会成为垃圾回收的目标。
+不过，如果调用了removeReference()，就会摧毁值对象的最后一个引用，垃圾回收程序就可以把这个值清理掉。
+
+## WeakSet 不可迭代
+
+原理和`WeakMap`相同。
+
+## 使用 WeakSet
+
+```js title=
+const disabledElements = new WeakSet();
+const loginButton = document.querySelector('#login');
+// 通过加入对应集合，给这个节点打上“禁用”标签
+disabledElements.add(loginButton);
+```
+
+如果集合中存在`#login`，说明被禁用。不使用`Set`是因为避免内存泄漏。
+
+
