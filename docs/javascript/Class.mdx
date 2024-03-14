@@ -1,0 +1,293 @@
+# Class
+
+## class 作用域
+
+`function`受函数作用域，`class`受块作用域限制。
+
+```js {4}
+{
+  function fn1(){}
+
+  class Fn2{}
+}
+
+console.log(fn1);
+console.log(Fn2); // error
+```
+
+
+## 将class赋值为变量
+
+以下示例中，class `PersonName`赋值为变量`Person`后，在`class`外部将无法访问`PersonName`
+
+```js {9}
+let Person = class PersonName {
+  identify() {
+    console.log(Person.name, PersonName.name);
+  }
+}
+let p = new Person();
+p.identify();                // PersonName PersonName
+console.log(Person.name);    // PersonName
+console.log(PersonName);     // ReferenceError: PersonName is not defined
+```
+
+## 构造函数返回其他对象
+
+构造函数返回自定义对象，这将复盖默认的`Person`对象。
+
+```js {5-7}
+class Person {
+  constructor(override) {
+    this.foo = "foo";
+    if (override) {
+      return {
+        bar: "bar",
+      };
+    }
+  }
+}
+const p1 = new Person();
+const p2 = new Person(true);
+console.log(p1);                   // Person{ foo: 'foo' }
+console.log(p1 instanceof Person); // true
+console.log(p2);                   // { bar: 'bar' }
+console.log(p2 instanceof Person); // false
+
+```
+
+## 区分class和function
+
+1. 比较字符串
+2. 比较各自的`prototype`的`writable`值
+3. 比较各自的`arguments`
+
+| Person(类或函数) | class | function |
+| :- | :- | :- |
+| `Person.toString()` | "class Person {}" | "function Person() {}" |
+| `Object.getOwnPropertyDescriptor(Person, 'prototype')` | \{writable: false} | \{writable: true}|
+| `Person.arguments` | 报错 | null |
+
+:::danger
+但这种比较方式在`ES6 -> ES5`后失效。
+:::
+
+## class 添加 generator iterator
+
+1. 添加生成器方法:
+
+```js title=
+class Person {
+  constructor() {
+    this.nicknames = ['foo', 'bar', 'baz'];
+  }
+  *[Symbol.iterator](){
+    yield * this.nicknames.entries();
+  }
+}
+let p = new Person();
+for (let [idx, nickname] of p) {
+  console.log(nickname);
+}
+// foo
+// bar
+// baz
+```
+
+2. 添加迭代器方法
+
+```js {7}
+class Person {
+  constructor() {
+    this.nicknames = ['foo', 'bar', 'baz'];
+  }
+  [Symbol.iterator](){
+    // Array.prototype.entries() 返回迭代器
+    return this.nicknames.entries();
+  }
+}
+let p = new Person();
+for (let [idx, nickname] of p) {
+  console.log(nickname);
+}
+// foo
+// bar
+// baz
+```
+
+## 类构造函数中，不能在super()之前引用this
+
+```js {8,9}
+class Vehicle {
+  constructor() {
+    this.hasEngine = true;
+  }
+}
+class Bus extends Vehicle {
+  constructor() {
+    // console.log(this); 不要在调用super()之前引用this，否则会抛出ReferenceError
+    super(); // 相当于super.constructor()
+    console.log(this instanceof Vehicle);   // true
+    console.log(this);                      // Bus { hasEngine: true }
+  }
+}
+new Bus();
+```
+
+## super.xxx()调用父类的静态方法
+
+`super.xxx()`调用父类静态方法时，子类的函数必须也是静态方法。
+
+```js {7-10}
+class Vehicle {
+  static identify() {
+    console.log('vehicle');
+  }
+}
+class Bus extends Vehicle {
+  // 必须也是静态方法，否则报错
+  static identify() {
+    // 使用super.xxx()调用父类的静态方法
+    super.identify();
+  }
+}
+Bus.identify()
+```
+
+错误示例：
+
+实例方法内部调用静态方法将报错。
+
+```js {7-9,11,12}
+class Vehicle {
+  static identify() {
+    console.log('vehicle');
+  }
+}
+class Bus extends Vehicle {
+  identify() {
+    super.identify(); // 报错
+  }
+}
+const bus = new Bus()
+bus.identify();
+```
+
+## 不能单独使用super
+
+不能单独引用super关键字，要么用它调用构造函数，要么用它引用静态方法。
+
+```js title=
+class Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    console.log(super);
+    // SyntaxError: 'super' keyword unexpected here
+  }
+}
+```
+
+## 子类构造函数中调用super()或返回对象
+
+如果在派生类中显式定义了构造函数，则要么必须在其中调用super()，要么必须在其中返回一个对象。
+
+```js title=
+class Vehicle {}
+class Car extends Vehicle {}
+class Bus extends Vehicle {
+  constructor() {
+    super();
+  }
+}
+class Van extends Vehicle {
+  constructor() {
+    return {};
+  }
+}
+console.log(new Car());   // Car {}
+console.log(new Bus());   // Bus {}
+console.log(new Van());   // {}
+```
+
+## 抽象基类
+
+ECMAScript没有专门支持这种类的语法，但通过`new.target`实现。
+
+```js title=
+// 抽象基类
+class Vehicle {
+  constructor() {
+    if (new.target === Vehicle) {
+      throw new Error('Vehicle cannot be directly instantiated');
+    }
+
+    if (this.show !== 'function') {
+      throw new Error('Inheriting class must define show()')
+    }
+  }
+}
+// 派生类
+new Vehicle();    // Error: Vehicle cannot be directly instantiated
+
+class Bus extends Vehicle {}
+new Bus();        // Error: Inheriting class must define show()
+```
+
+## 继成内置类型
+
+```js title=
+class SuperArray extends Array {
+  shuffle() {
+    // 洗牌算法
+    for (let i = this.length -1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this[i], this[j]] = [this[j], this[i]];
+    }
+  }
+}
+const a = new SuperArray(1, 2, 3, 4, 5);
+
+console.log(a instanceof Array);        // true
+console.log(a instanceof SuperArray);   // true
+console.log(a);   // [1, 2, 3, 4, 5]
+
+a.shuffle();
+console.log(a);   // [3, 1, 4, 5, 2
+```
+
+默认情况下，返回实例的类型与原始实例的类型是一致。
+
+```js title=
+class SuperArray extends Array {}
+let a1 = new SuperArray(1, 2, 3, 4, 5);
+let a2 = a1.filter(x => ! ! (x%2))
+console.log(a1);   // [1, 2, 3, 4, 5]
+console.log(a2);   // [1, 3, 5]
+console.log(a1 instanceof SuperArray);   // true
+console.log(a2 instanceof SuperArray);   // true
+```
+
+如果想覆盖这个默认行为，则可以覆盖Symbol.species访问器，这个访问器决定在创建返回的实例时使用的类：
+
+```js title=
+class SuperArray extends Array {
+  static get [Symbol.species](){
+    return Array;
+  }
+}
+let a1 = new SuperArray(1, 2, 3, 4, 5);
+let a2 = a1.filter(x => ! ! (x%2))
+console.log(a1);   // [1, 2, 3, 4, 5]
+console.log(a2);   // [1, 3, 5]
+console.log(a1 instanceof SuperArray);   // true
+console.log(a2 instanceof SuperArray);  //false
+```
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+# Proxy
+
+## Proxy的原型
+
+`Proxy`的原型时`undefined`，所以使用`instanceof`报错。
+
+```js title=
+// undefined
+console.log(Proxy.prototype); 
+
+// Function has non-object prototype 'undefined' in instanceof check
+console.log({} instanceof Proxy);
+```
+
+## Proxy.get()
+
+触发时机：
+
+- `proxy[property]`
+- `proxy.property`
+- `Object.create(proxy)[property]`
+
+```js title=
+const target = {
+  foo: 'bar'
+};
+const handler = {
+  // 捕获器在处理程序对象中以方法名为键
+  get() {
+    return 'handler override';
+  }
+};
+const proxy = new Proxy(target, handler);
+
+console.log(target.foo);                     // bar
+console.log(proxy.foo);                      // handler override
+
+console.log(target['foo']);                  // bar
+console.log(proxy['foo']);                   // handler override
+
+console.log(Object.create(target)['foo']);   // bar
+console.log(Object.create(proxy)['foo']);    // handler override
+```
+
+## 捕获器参数
+
+```js {6-8}
+const target = {
+  foo: 'bar'
+};
+const handler = {
+  get(trapTarget, property, receiver) {
+    console.log(trapTarget === target); // true
+    console.log(property);              // foo
+    console.log(receiver === proxy);    // true
+  }
+};
+const proxy = new Proxy(target, handler);
+proxy.foo;
+```
+
+## 捕获器重建原始行为
+
+```js {6}
+const target = {
+  foo: 'bar'
+};
+const handler = {
+  get() {
+    return Reflect.get(...arguments);
+  }
+};
+const proxy = new Proxy(target, handler);
+console.log(proxy.foo);    // bar
+console.log(target.foo);   // ba
+```
+
+更简洁的写法：
+
+```js {5}
+const target = {
+  foo: 'bar'
+};
+const handler = {
+  get: Reflect.get
+};
+const proxy = new Proxy(target, handler);
+console.log(proxy.foo);   // bar
+console.log(target.foo); // barr
+```
+
+如果真需要空捕获器，可以只传`Reflect`
+
+```js {4}
+const target = {
+  foo: 'bar'
+};
+const proxy = new Proxy(target, Reflect);
+console.log(proxy.foo);    // bar
+console.log(target.foo);   // bar
+```
+
+## 捕获器不变式
+
+以下示例中`foo`的属性描述符`writable`为`false`，此时无法在`proxy`中修改`foo`的返回值，否则报错。
+
+```js {}
+const target = {};
+Object.defineProperty(target, 'foo', {
+  configurable: false,
+  writable: false, // 如果为true，则可以在proxy.get中修改返回值为 qux
+  value: 'bar'
+});
+const handler = {
+  get() {
+    return 'qux'; // TypeError，如果返回 bar 则不报错
+  }
+};
+const proxy = new Proxy(target, handler);
+console.log(proxy.foo);
+```
+
+## 撤消代理
+
+使用`Proxy.revocable`创建的`proxy`可撤消，撤消后再次访问`proxy`时将报错。
+
+```js {9,12,13}
+const target = {
+  foo: 'bar'
+};
+const handler = {
+  get() {
+    return 'intercepted';
+  }
+};
+const { proxy, revoke } = Proxy.revocable(target, handler);
+console.log(proxy.foo);    // intercepted
+console.log(target.foo);   // bar
+revoke();
+console.log(proxy.foo);    // TypeError
+```
+
+## 反射API 与 对象API
+
+
+
+
+
+

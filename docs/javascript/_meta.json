@@ -79,6 +79,16 @@
   },
   {
     "type": "file",
+    "name": "Class",
+    "label": "Class"
+  },
+  {
+    "type": "file",
+    "name": "Proxy",
+    "label": "Proxy"
+  },
+  {
+    "type": "file",
     "name": "小知识",
     "label": "小知识"
   }
